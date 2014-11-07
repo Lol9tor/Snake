@@ -1,31 +1,24 @@
 var core = new Core();
-
 function changeDirection(e){
-    var keyCode = {
-        left: 37,
-        up: 38,
-        right: 39,
-        down: 40
+    var keyMap = {
+        37: 3,
+        38: 0,
+        39: 1,
+        40: 2
     };
-    switch(e.keyCode) {
-        case keyCode.left:
-            core.snake.direction = 3;
-            break;
-        case keyCode.up:
-            core.snake.direction = 0;
-            break;
-        case keyCode.right:
-            core.snake.direction = 1;
-            break;
-        case keyCode.down:
-            core.snake.direction = 2;
-            break;
+
+    if (e.keyCode in keyMap){
+        core.snake.direction = keyMap[e.keyCode];
     }
+
 }
 var start = document.getElementById('startGame');
-start.onclick = function () {
-    if (core.stop){
-        core = new Core();
-    }
-};
+var gameOver = document.getElementById('gameOver');
 window.addEventListener('keydown', changeDirection, false);
+function endGame() {
+    gameOver.innerHTML = 'GAME OVER! YOUR SNAKE\'S SIZE IS <b>'+core.snake.parts.length+'</b>. PLEASE, TRY AGAIN.';
+}
+
+
+
+

@@ -1,3 +1,9 @@
+(function() {
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+    window.requestAnimationFrame = requestAnimationFrame;
+})();
+
 function generateRandom (value) {
     return Math.floor(value*Math.random());
 }
@@ -24,6 +30,9 @@ function Core() {
         3: {x: -1, y: 0}
     };
     this.view = new View(this.field);
+    this.lastFrame = null;
+    this.timestamp = 0;
+    this.isActive = true;
     this.start();
 }
 
@@ -78,18 +87,16 @@ Core.prototype.createApple = function () {
             if (this.apple.x == this.snake.parts[i].x && this.apple.y == this.snake.parts[i].y){
                 created = false;
             }
-
         }
     }
-/*    for (var i = 0; i < this.snake.parts.length; i++){
-        if (this.apple.x == this.snake.parts[i].x && this.apple.y == this.snake.parts[i].y){
-            console.log(this.apple);
-            this.apple = new Apple(this.field.height, this.field.width);
-        }
-    }*/
 };
 
-Core.prototype.step = function () {
+Core.prototype.step = function (timestamp) {
+    this.timestamp += timestamp;
+    if (this.timestamp < this.speed){
+        return false;
+    }
+    this.timestamp -= this.speed;
     var getApple = this.checkApple();
     var checkWalls = this.checkWalls();
     var checkSelf = this.checkSelf();
@@ -98,24 +105,33 @@ Core.prototype.step = function () {
         this.view.drawAll(this.snake.parts, this.apple);
     } else{
         this.stop();
+        endGame();
     }
     if (getApple){
         this.speedUp();
     }
     this.prevStep = this.snake.direction;
-    //this.stop();
 };
 
 Core.prototype.start = function () {
-    var self = this;
-    this.intervalId = setInterval(function () {
-         self.step();
-     }, this.speed);
+    this.lastFrame = Date.now();
+    this.isActive = true;
+    var self = this,
+        cb = function () {
+            var time = Date.now() - self.lastFrame;
+            if (self.isActive){
+                requestAnimationFrame(cb);
+                self.step(time);
+                self.lastFrame = Date.now();
+            }
+        };
+    requestAnimationFrame(cb);
+
 };
 
 Core.prototype.stop = function () {
-    clearInterval(this.intervalId);
-    return true;
+    //clearInterval(this.intervalId);
+    this.isActive = false;
 };
 
 Core.prototype.speedUp = function () {
