@@ -17,14 +17,15 @@ View.prototype.drawSnake = function (snakeParts) {
 };
 
 View.prototype.drawApple = function (apple) {
-
+    var step = this.step;
+    this.context.fillRect(step * apple.x, step * apple.y, step-1, step-1);
 };
 
 View.prototype.drawAll = function (snakeParts, apple) {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawField();
     this.drawSnake(snakeParts);
-    //this.drawApple(apple);
+    this.drawApple(apple);
 };
 
 View.prototype.initialize = function () {
